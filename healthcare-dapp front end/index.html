@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MedChain — Secure Healthcare Data Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">⚕</div>
+        <span class="logo-text">MedChain</span>
+      </div>
+      <div class="wallet-section">
+        <div id="walletStatus" class="wallet-status disconnected">
+          <span class="wallet-dot"></span>
+          <span id="walletLabel">Not Connected</span>
+        </div>
+        <button id="connectBtn" class="btn btn-primary">Connect MetaMask</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO / STATUS BAR -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <h1>Secure Medical Records<br/><em>on the Blockchain</em></h1>
+        <p>Patient-controlled, tamper-proof, decentralized health data sharing powered by Ethereum smart contracts.</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value" id="statPatients">—</div>
+          <div class="stat-label">Registered Patients</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statDoctors">—</div>
+          <div class="stat-label">Verified Doctors</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statRecords">—</div>
+          <div class="stat-label">Medical Records</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statNetwork">—</div>
+          <div class="stat-label">Network</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABS -->
+  <main class="main">
+    <div class="tabs-wrapper">
+      <div class="tabs">
+        <button class="tab active" data-tab="patient">👤 Patient Panel</button>
+        <button class="tab" data-tab="doctor">🩺 Doctor Panel</button>
+        <button class="tab" data-tab="records">📋 View Records</button>
+        <button class="tab" data-tab="logs">🔍 Transaction Logs</button>
+      </div>
+    </div>
+
+    <!-- PATIENT PANEL -->
+    <div id="tab-patient" class="tab-content active">
+      <div class="panel-grid">
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green">P</div>
+            <div>
+              <h2>Register as Patient</h2>
+              <p>Create your on-chain patient identity</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" id="patientName" placeholder="e.g. Alice Sharma" />
+          </div>
+          <button class="btn btn-green" onclick="registerPatient()">Register Patient</button>
+          <div id="patientRegStatus" class="status-msg"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">✓</div>
+            <div>
+              <h2>Grant Doctor Access</h2>
+              <p>Allow a doctor to view your records</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Doctor's Wallet Address</label>
+            <input type="text" id="grantDoctorAddr" placeholder="0x..." />
+          </div>
+          <button class="btn btn-blue" onclick="grantAccess()">Grant Access</button>
+          <div id="grantStatus" class="status-msg"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon red">✗</div>
+            <div>
+              <h2>Revoke Doctor Access</h2>
+              <p>Remove a doctor's permission</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Doctor's Wallet Address</label>
+            <input type="text" id="revokeDoctorAddr" placeholder="0x..." />
+          </div>
+          <button class="btn btn-red" onclick="revokeAccess()">Revoke Access</button>
+          <div id="revokeStatus" class="status-msg"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon purple">🔍</div>
+            <div>
+              <h2>Check My Records</h2>
+              <p>View total records linked to your address</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Patient Address (leave blank for yours)</label>
+            <input type="text" id="checkPatientAddr" placeholder="0x... or leave blank" />
+          </div>
+          <button class="btn btn-purple" onclick="checkRecordCount()">Check Count</button>
+          <div id="recordCountResult" class="status-msg"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DOCTOR PANEL -->
+    <div id="tab-doctor" class="tab-content">
+      <div class="panel-grid">
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">D</div>
+            <div>
+              <h2>Register as Doctor</h2>
+              <p>Create your verified doctor identity</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" id="doctorName" placeholder="e.g. Dr. Priya Mehta" />
+          </div>
+          <button class="btn btn-blue" onclick="registerDoctor()">Register Doctor</button>
+          <div id="doctorRegStatus" class="status-msg"></div>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-header">
+            <div class="card-icon green">⬆</div>
+            <div>
+              <h2>Upload Medical Record</h2>
+              <p>Store an IPFS CID hash on-chain for a patient</p>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Patient Wallet Address</label>
+              <input type="text" id="uploadPatientAddr" placeholder="0x..." />
+            </div>
+            <div class="form-group">
+              <label>Record Type</label>
+              <select id="recordType">
+                <option>Blood Report</option>
+                <option>X-Ray</option>
+                <option>MRI Scan</option>
+                <option>Prescription</option>
+                <option>ECG Report</option>
+                <option>CT Scan</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>IPFS CID (Content Identifier)</label>
+            <input type="text" id="ipfsCID" placeholder="QmXyz123... (the hash from IPFS upload)" />
+            <small>This is the hash you'd get after uploading the file to IPFS/Pinata</small>
+          </div>
+          <button class="btn btn-green" onclick="uploadRecord()">Upload Record to Blockchain</button>
+          <div id="uploadStatus" class="status-msg"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- VIEW RECORDS -->
+    <div id="tab-records" class="tab-content">
+      <div class="panel-grid">
+        <div class="card full-width">
+          <div class="card-header">
+            <div class="card-icon purple">📋</div>
+            <div>
+              <h2>View Medical Record</h2>
+              <p>Retrieve a record (only if you have access)</p>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Patient Wallet Address</label>
+              <input type="text" id="viewPatientAddr" placeholder="0x..." />
+            </div>
+            <div class="form-group">
+              <label>Record ID (bytes32)</label>
+              <input type="text" id="viewRecordId" placeholder="0x..." />
+            </div>
+          </div>
+          <button class="btn btn-purple" onclick="getRecord()">Retrieve Record</button>
+          <div id="recordResult" class="status-msg"></div>
+          <div id="recordCard" class="record-card hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSACTION LOGS -->
+    <div id="tab-logs" class="tab-content">
+      <div class="card full-width">
+        <div class="card-header">
+          <div class="card-icon orange">🔍</div>
+          <div>
+            <h2>Live Transaction Logs</h2>
+            <p>All contract interactions in this session</p>
+          </div>
+        </div>
+        <div id="txLogs" class="tx-log-box">
+          <div class="tx-empty">No transactions yet. Start interacting with the contract.</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="js/abi.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
